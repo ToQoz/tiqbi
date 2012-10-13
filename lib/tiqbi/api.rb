@@ -28,12 +28,10 @@ module Tiqbi
     end
 
     def https
-      unless @https
-        @https = Net::HTTP.new("qiita.com", 443)
-        @https.use_ssl = true
-        @https.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      end
-      @https
+      https = Net::HTTP.new("qiita.com", 443)
+      https.use_ssl = true
+      https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      https
     end
 
     def default_params
