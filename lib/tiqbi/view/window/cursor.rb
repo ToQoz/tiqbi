@@ -9,6 +9,11 @@ module Tiqbi
           @y = 0
         end
 
+        def clear
+          self.x = 0
+          self.y = 0
+        end
+
         def up
           self.y -= 1
         end

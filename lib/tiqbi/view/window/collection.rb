@@ -24,6 +24,9 @@ module Tiqbi
         def line_size
           @collection.size
         end
+        def clear
+          @collection = []
+        end
       end
     end
   end

@@ -13,8 +13,8 @@ module Tiqbi
       def initialize(curses_parent, h, w, y, x)
         @c_window = curses_parent.subwin(h, w, y, x)
         @cursor = Cursor.new
-        @top_statement = 0
         @collection = Collection.new
+        @top_statement = 0
         @initial_h = h
         @initial_w = w
       end
@@ -23,7 +23,7 @@ module Tiqbi
         unless col.is_a?(Collection)
           @collection = Collection.new(col)
         else
-          @collections = col
+          @collection = col
         end
       end
 
@@ -34,17 +34,17 @@ module Tiqbi
       end
 
       def print
-        collection.all[0..(c_window.maxy - 1)].each_with_index do |line, index|
+        collection.all[0..(c_window.maxy - 1)].each_with_index { |line, index|
           setpos(index, 0)
           c_window.addstr line
-        end
+        }
         c_window.setpos(0, 0)
         refresh
       end
 
       def clear_collection
-        self.collection = Collection.new
-        self.cursor = Cursor.new
+        self.collection.clear if collection
+        self.cursor.clear
         self.top_statement = 0
       end
 
@@ -134,7 +134,7 @@ module Tiqbi
       end
 
       def refresh
-        @c_window.refresh
+        c_window.refresh
       end
 
       def events
