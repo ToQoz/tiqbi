@@ -1,93 +1,100 @@
+require 'tiqbi/view/window'
+require 'tiqbi/view/main_window'
+require 'tiqbi/view/detail_window'
+require 'tiqbi/view/command_window'
+
 module Tiqbi
   class View
     MAIN_WINDOW = 1
     DETAIL_WINDOW = 2
-    DETAIL_WINDOW_HEIGHT = 30
     COMMAND_WINDOW = 3
-    COMMAND_WINDOW_HEIGHT = 1
 
     attr_accessor :windows
     include Utils
 
+    def initialize(c_screen)
+      # calc size
+      scr_x = c_screen.maxx - c_screen.begx
+      scr_y = c_screen.maxy - c_screen.begy
+      main_h = scr_y / 2
+      cmd_h = 1
+      detail_h = main_h - cmd_h
 
-    def initialize(curses_screen)
-      screen_x = curses_screen.maxx - curses_screen.begx
-      screen_y = curses_screen.maxy - curses_screen.begy
-
-      main_window = MainWindow.new(
-        curses_screen, screen_y - DETAIL_WINDOW_HEIGHT - COMMAND_WINDOW_HEIGHT, screen_x, 0, 0
-      )
-
-      command_window = CommandWindow.new(
-        curses_screen, COMMAND_WINDOW_HEIGHT, screen_x, screen_y - COMMAND_WINDOW_HEIGHT, 0
-      )
-
-      detail_window = DetailWindow.new(
-        curses_screen, DETAIL_WINDOW_HEIGHT, screen_x, screen_y - DETAIL_WINDOW_HEIGHT, 0
-      )
-      detail_window.on_data_loaded do |win, data|
-        win.restore_initial_size!
-
-        col = []
-        # Add title
-        col << '-' * (win.maxx - 1)
-        col << 'Title'
-        col << '-' * (win.maxx - 1)
-        unescape_entity(Sanitize.clean(data['title']).chomp).split_screen_width(win.maxx - 1).each do |s_t|
-          col << s_t
-        end
-        # Add body
-        col << '-' * (win.maxx - 1)
-        col << 'Body'
-        col << '-' * (win.maxx - 1)
-        unescape_entity(Sanitize.clean(data['body']).chomp).split(/\n|\r\n/).each do |line|
-          line.split_screen_width(win.maxx - 1).each do |b|
-            col << b
-          end
-        end
-        # add Comment
-        col << ''
-        col << '-' * (win.maxx - 1)
-        col << 'Comment'
-        col << '-' * (win.maxx - 1)
-        data['comments'].each do |c|
-          unescape_entity(Sanitize.clean((c['body']).chomp)).split(/\n|\r\n/).each do |line|
-            line.split_screen_width(win.maxx - 1).each do |s_l|
-              col << s_l
-            end
-          end
-        end
-
-        win.collection = Collection.new(col)
-        win.print
-      end
+      # initialize all windows
+      main_win = MainWindow.new(c_screen, main_h, scr_x, 0, 0)
+      cmd_win = CommandWindow.new(c_screen, cmd_h, scr_x, main_h + detail_h, 0)
+      detail_win = DetailWindow.new(c_screen, detail_h, scr_x, main_h, 0)
 
       @windows = {
-        MAIN_WINDOW => main_window,
-        DETAIL_WINDOW => detail_window,
-        COMMAND_WINDOW => command_window,
+        MAIN_WINDOW => main_win,
+        DETAIL_WINDOW => detail_win,
+        COMMAND_WINDOW => cmd_win,
       }
+    end
+
+    def on_input(input)
+      case input
+      when ?j
+        current_window.cursor_down
+      when ?k
+        current_window.cursor_up
+      when 10
+        if current_window == windows[MAIN_WINDOW]
+          index = current_window.cursor.y
+          item = current_window.collection.at(index, false)
+          return unless item
+          Tiqbi::API.item(item['uuid']) do |status, body|
+            trigger :on_data_loaded, body
+          end
+          switch_to_next_window window(DETAIL_WINDOW)
+        end
+      when ?q
+        switch_to_previous_window
+      end
+    end
+
+    def window(window_id)
+      windows[window_id]
+    end
+
+    def current_window
+      @current_window ||= window(MAIN_WINDOW)
+    end
+
+    def current_window=(win)
+      @current_window = win
+    end
+
+    def window_history
+      @window_history ||= []
+    end
+
+    def switch_to_next_window(win)
+      window_history << current_window
+      self.current_window = win
+      switch_to(current_window)
+    end
+
+    def switch_to_previous_window
+      previous_win = window_history.shift
+      unless previous_win
+        exit
+      else
+        current_window.virtual_close
+        switch_to(previous_win)
+      end
+    end
+
+    def switch_to(win)
+      self.current_window = win
+      win.setpos(win.cursor.y, win.cursor.x)
+      win.refresh
     end
 
     def trigger(name, *args)
       windows.each_pair do |w_name, w|
         w.events[name].each { |e| e.call(w, *args) } if w.events[name]
       end
-    end
-
-    def command(key, source)
-      windows.each_pair do |w_name, w|
-        w.command(key, source)
-      end
-    end
-
-    def focus(window_id)
-      win = window(window_id)
-      win.setpos(win.cursor.y, win.cursor.x)
-    end
-
-    def window(window_id)
-      windows[window_id]
     end
   end
 end
