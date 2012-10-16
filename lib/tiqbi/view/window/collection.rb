@@ -1,13 +1,15 @@
 module Tiqbi
   class View
-    class Window
+    module Window
       class Collection
         attr_accessor :collection
         def initialize(collection = [])
           @collection = collection
         end
-        def at(index, for_view = true)
-          @collection[index]
+        def at(index, &block)
+          line = @collection[index]
+          return line unless block_given?
+          yield line
         end
         def push(value, for_view = true)
           @collection << value

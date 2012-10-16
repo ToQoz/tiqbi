@@ -3,6 +3,7 @@
 require 'logger'
 require 'curses'
 require 'hashie'
+require 'sanitize'
 
 require 'extentions/string'
 require 'tiqbi/utils'
@@ -13,6 +14,10 @@ module Tiqbi
   extend self
   extend Utils
   attr_accessor :view, :options
+
+  F_YELLOW_B_BLACK = 1
+  F_RED_B_BLACK = 2
+  F_BLUE_B_BLACK = 3
 
   def run(options)
     # initialize console
@@ -55,9 +60,9 @@ module Tiqbi
   def configure_curses
     Curses.init_screen
     Curses.start_color
-    Curses.init_pair 1, Curses::COLOR_YELLOW, Curses::COLOR_BLACK
-    Curses.init_pair 2, Curses::COLOR_RED, Curses::COLOR_BLACK
-    Curses.init_pair 3, Curses::COLOR_BLUE, Curses::COLOR_BLACK
+    Curses.init_pair F_YELLOW_B_BLACK, Curses::COLOR_YELLOW, Curses::COLOR_BLACK
+    Curses.init_pair F_BLUE_B_BLACK, Curses::COLOR_RED, Curses::COLOR_BLACK
+    Curses.init_pair F_RED_B_BLACK, Curses::COLOR_BLUE, Curses::COLOR_BLACK
     Curses.cbreak
     Curses.noecho
   end

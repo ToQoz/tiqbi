@@ -1,6 +1,6 @@
 module Tiqbi
   class View
-    class Window
+    module Window
       class Cursor
         attr_accessor :x, :y
 

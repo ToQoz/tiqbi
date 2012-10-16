@@ -1,7 +1,6 @@
-require 'tiqbi/view/window'
-require 'tiqbi/view/main_window'
-require 'tiqbi/view/detail_window'
-require 'tiqbi/view/command_window'
+require 'tiqbi/view/window/main_window'
+require 'tiqbi/view/window/detail_window'
+require 'tiqbi/view/window/command_window'
 
 module Tiqbi
   class View
@@ -21,9 +20,9 @@ module Tiqbi
       detail_h = main_h - cmd_h
 
       # initialize all windows
-      main_win = MainWindow.new(c_screen, main_h, scr_x, 0, 0)
-      cmd_win = CommandWindow.new(c_screen, cmd_h, scr_x, main_h + detail_h, 0)
-      detail_win = DetailWindow.new(c_screen, detail_h, scr_x, main_h, 0)
+      main_win = Window::MainWindow.new(c_screen, main_h, scr_x, 0, 0)
+      cmd_win = Window::CommandWindow.new(c_screen, cmd_h, scr_x, main_h + detail_h, 0)
+      detail_win = Window::DetailWindow.new(c_screen, detail_h, scr_x, main_h, 0)
 
       @windows = {
         MAIN_WINDOW => main_win,
@@ -41,7 +40,7 @@ module Tiqbi
       when 10
         if current_window == windows[MAIN_WINDOW]
           index = current_window.cursor.y
-          item = current_window.collection.at(index, false)
+          item = current_window.collection.at(index)
           return unless item
           Tiqbi::API.item(item['uuid']) do |status, body|
             trigger :on_data_loaded, body
