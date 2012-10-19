@@ -1,4 +1,7 @@
 /tmp
 /logs
 /vendor/bundles
+/cache
+/.bundle
+
 !.gitkeep

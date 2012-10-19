@@ -1,6 +1,8 @@
-require 'tiqbi/view/window/main_window'
-require 'tiqbi/view/window/detail_window'
-require 'tiqbi/view/window/command_window'
+# -*- coding: utf-8 -*-
+
+require 'tiqbi/window/main_window'
+require 'tiqbi/window/detail_window'
+require 'tiqbi/window/command_window'
 
 module Tiqbi
   class View
@@ -8,27 +10,26 @@ module Tiqbi
     DETAIL_WINDOW = 2
     COMMAND_WINDOW = 3
 
-    attr_accessor :windows
     include Utils
+    attr_accessor :windows
 
     def initialize(c_screen)
       # calc size
-      scr_x = c_screen.maxx - c_screen.begx
-      scr_y = c_screen.maxy - c_screen.begy
-      main_h = scr_y / 2
-      cmd_h = 1
+      scr_x    = c_screen.maxx - c_screen.begx
+      scr_y    = c_screen.maxy - c_screen.begy
+      main_h   = scr_y / 2
+      cmd_h    = 1
       detail_h = main_h - cmd_h
-
       # initialize all windows
-      main_win = Window::MainWindow.new(c_screen, main_h, scr_x, 0, 0)
-      cmd_win = Window::CommandWindow.new(c_screen, cmd_h, scr_x, main_h + detail_h, 0)
-      detail_win = Window::DetailWindow.new(c_screen, detail_h, scr_x, main_h, 0)
-
       @windows = {
-        MAIN_WINDOW => main_win,
-        DETAIL_WINDOW => detail_win,
-        COMMAND_WINDOW => cmd_win,
+        MAIN_WINDOW    => Window::MainWindow.new(c_screen, main_h, scr_x, 0, 0),
+        DETAIL_WINDOW  => Window::DetailWindow.new(c_screen, detail_h, scr_x, main_h, 0),
+        COMMAND_WINDOW => Window::CommandWindow.new(c_screen, cmd_h, scr_x, main_h + detail_h, 0)
       }
+
+      items = Qiita.item("") rescue []
+      @windows[MAIN_WINDOW].collection = items
+      @windows[MAIN_WINDOW].print
     end
 
     def on_input(input)
@@ -38,13 +39,12 @@ module Tiqbi
       when ?k
         current_window.cursor_up
       when 10
-        if current_window == windows[MAIN_WINDOW]
+        if current_window == window(MAIN_WINDOW)
           index = current_window.cursor.y
           item = current_window.collection.at(index)
           return unless item
-          Tiqbi::API.item(item['uuid']) do |status, body|
-            trigger :on_data_loaded, body
-          end
+          item_detail = Qiita.item(item.uuid) rescue {}
+          window(DETAIL_WINDOW).item_loaded item_detail
           switch_to_next_window window(DETAIL_WINDOW)
         end
       when ?q
@@ -88,12 +88,6 @@ module Tiqbi
       self.current_window = win
       win.setpos(win.cursor.y, win.cursor.x)
       win.refresh
-    end
-
-    def trigger(name, *args)
-      windows.each_pair do |w_name, w|
-        w.events[name].each { |e| e.call(w, *args) } if w.events[name]
-      end
     end
   end
 end
