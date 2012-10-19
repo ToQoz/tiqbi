@@ -5,6 +5,7 @@ require 'curses'
 require 'sanitize'
 require 'qiita'
 
+require 'tiqbi/version'
 require 'tiqbi/utils'
 require 'tiqbi/view'
 

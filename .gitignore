@@ -3,5 +3,6 @@
 /vendor/bundles
 /cache
 /.bundle
+/Gemfile.lock
 
 !.gitkeep
