@@ -4,5 +4,6 @@
 /cache
 /.bundle
 /Gemfile.lock
+/pkg
 
 !.gitkeep
