@@ -3,16 +3,16 @@
 require 'logger'
 require 'curses'
 require 'sanitize'
-require 'qiita'
+require 'active_support/cache'
 
 require 'tiqbi/version'
 require 'tiqbi/utils'
-require 'tiqbi/view'
+require 'tiqbi/view_controller'
 
 module Tiqbi
   extend self
   extend Utils
-  attr_accessor :view, :options
+  attr_accessor :view_controller, :options
 
   F_YELLOW_B_BLACK = 1
   F_RED_B_BLACK = 2
@@ -22,15 +22,14 @@ module Tiqbi
     # initialize console
     self.options = options
     configure_curses
-    # get default window
     curses_screen = Curses.stdscr
-    self.view = View.new(curses_screen)
+    self.view_controller = ViewController.new(curses_screen)
 
     # event loop
     begin
       loop {
-        ch = view.current_window.getch
-        view.on_input(ch)
+        ch = view_controller.current_view.getch
+        view_controller.on_input(ch)
       }
     ensure
       Curses.close_screen
@@ -39,6 +38,10 @@ module Tiqbi
 
   def root
     Pathname.new(File.dirname(__FILE__)).join("..")
+  end
+
+  def cache
+    @cache ||=  ActiveSupport::Cache::MemoryStore.new
   end
 
   def logger

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 module Tiqbi
-  module Window
+  module View
     class Collection
       attr_accessor :collection
       def initialize(collection = [])

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-require "tiqbi/window/base"
+require "tiqbi/view/base"
 
 module Tiqbi
-  module Window
-    class CommandWindow < Base
+  module View
+    class CommandView < Base
       def initialize(*args)
         super(*args)
       end

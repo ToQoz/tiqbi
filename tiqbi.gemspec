@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Tiqbi::VERSION
 
   gem.add_dependency "slop"
+  gem.add_dependency "activesupport"
   gem.add_dependency "qiita", ">= 0.0.3"
   gem.add_dependency "sanitize"
 end

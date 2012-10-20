@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-require "tiqbi/window/base"
+require "tiqbi/view/base"
 
 module Tiqbi
-  module Window
-    class MainWindow < Base
+  module View
+    class MainView < Base
       def initialize(*args)
         # create subwindow
         super(*args)

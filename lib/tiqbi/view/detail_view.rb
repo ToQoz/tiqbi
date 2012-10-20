@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-require "tiqbi/window/base"
+require "tiqbi/view/base"
 
 module Tiqbi
-  module Window
-    class DetailWindow < Base
+  module View
+    class DetailView < Base
       include Tiqbi::Utils
 
       def initialize(*args)

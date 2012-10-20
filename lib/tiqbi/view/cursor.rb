@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 module Tiqbi
-  module Window
+  module View
     class Cursor
       attr_accessor :x, :y
 

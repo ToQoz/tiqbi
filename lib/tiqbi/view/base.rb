@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 require 'forwardable'
-require 'tiqbi/window/collection'
-require 'tiqbi/window/cursor'
+require 'tiqbi/view/collection'
+require 'tiqbi/view/cursor'
 
 module Tiqbi
-  module Window
+  module View
     class Base
       attr_accessor :c_window, :cursor, :top_statement
       attr_reader :collection
