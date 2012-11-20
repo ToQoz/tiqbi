@@ -11,3 +11,7 @@ text-mode interface for qiita. 美
 $ gem install tiqbi
 $ tiqbi
 ```
+
+# Attention
+if chars is bloken in your terminal, you should try to install libncursesw5-dev and to rebuild ruby.  
+c.f. http://stackoverflow.com/a/4702239
